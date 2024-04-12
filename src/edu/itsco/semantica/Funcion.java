@@ -57,18 +57,7 @@ public class Funcion {
 			return true;
 		}
 		return false;
-		/*
-		String id = "";
-		if(obj instanceof Funcion) {
-			Funcion f = (Funcion) obj;
-			id = f.getId();
-		}
-		if(obj instanceof String) {
-			id = (String) obj;
-			System.out.println(id);
-		}
-		return this.getId().equals(id);
-		*/
+		
 	}
 	
 }

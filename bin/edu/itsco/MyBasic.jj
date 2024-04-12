@@ -162,7 +162,8 @@ ArrayList<Variable> argumentos(): {
 	  variables.add(v);
 	} 
 	(	  < COMA > < VAR > id = < ID > <DP > tipoDato = tipoDato()
-	  { variables.add(new Variable(id.image, tipoDato.image)); }
+	  { variables.add(new Variable(id.image, tipoDato.image));
+	  }
 	)*
 	{
 	  //return numArgumentos;
@@ -180,12 +181,17 @@ Token tipoDato():{
 	}
 }
 
-void valor():{
+Token valor():{
+  Token valor;
 }{
-	< VALOR_ENTERO >
-	| < VALOR_DECIMAL >
-	| < VALOR_CADENA >
-	| identificador()
+	(	  valor = < VALOR_ENTERO >
+	| valor = < VALOR_DECIMAL >
+	| valor = < VALOR_CADENA >
+	| valor = identificador()
+	)
+	{
+	  return valor;
+	}
 }
 
 Token identificador(): {
@@ -247,17 +253,25 @@ void decideFuncionOAsignacion() throws SemanticException: {
 
 void gramaticaLlamarFuncion(Token id)throws SemanticException: {
   int numArgumentos = 0;
-  ArrayList<Variable> argumentos = new ArrayList<Variable>();
+  Token valor;
+  ArrayList<String> argumentos = new ArrayList<String>();
 } {
      < AP > [
-     	valor() { numArgumentos++; }
-     	( < COMA > valor() { numArgumentos++;} )*
+     	valor = valor() {
+     	  numArgumentos++;
+     	  argumentos.add(valor.image);
+     	}
+     	( < COMA > valor = valor() {
+     	  numArgumentos++;
+          argumentos.add(valor.image);
+      } )*
      ] <CP >
      {
 		Funcion f = new Funcion();
 		f.setId(id.image);
 		f.setNumArgumentos(numArgumentos);
 		adminFunciones.validaFuncion(f);
+		adminFunciones.validaArgumentos(f,argumentos);
      }
 }
 

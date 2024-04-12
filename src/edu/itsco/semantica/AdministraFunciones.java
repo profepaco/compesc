@@ -47,4 +47,16 @@ public class AdministraFunciones {
 					);
 		}
 	}
+	
+	public void validaArgumentos(Funcion f
+			,ArrayList<String> argumentos) {
+		int index = funciones.indexOf(f);
+		Funcion funcion = funciones.get(index);
+		for(int i=0;i<funcion.getArgumentos().size();i++) {
+			Variable v = funcion.getArgumentos().get(i);
+			if(v.getTipoDato().equals("entero")) {
+				int n = Integer.valueOf(argumentos.get(i));
+			}
+		}
+	}
 }

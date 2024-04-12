@@ -1,11 +1,7 @@
 inicio ejemplo
   
-  funcion resta()
-  	imprimir("Yo soy una funcion")
-  fin
-  
   funcion suma(var n1: entero, var n2: entero)
-  	regresa n1
+  	regresa n2
   fin 
   
   funcion principal()
@@ -15,8 +11,7 @@ inicio ejemplo
      leer(n1)
      imprimir("Dame n2")
      leer(n2)
-     suma(n1,"hola mundo")
-     resta()
+     suma(3, 1)
      si n1 > n2 entonces
      	imprimir("N1 es mayor")
      sino

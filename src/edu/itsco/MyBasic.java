@@ -174,22 +174,22 @@ variables.add(new Variable(id.image, tipoDato.image));
     throw new Error("Missing return statement in function");
 }
 
-  static final public void valor() throws ParseException {
+  static final public Token valor() throws ParseException {Token valor;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case VALOR_ENTERO:{
-      jj_consume_token(VALOR_ENTERO);
+      valor = jj_consume_token(VALOR_ENTERO);
       break;
       }
     case VALOR_DECIMAL:{
-      jj_consume_token(VALOR_DECIMAL);
+      valor = jj_consume_token(VALOR_DECIMAL);
       break;
       }
     case VALOR_CADENA:{
-      jj_consume_token(VALOR_CADENA);
+      valor = jj_consume_token(VALOR_CADENA);
       break;
       }
     case ID:{
-      identificador();
+      valor = identificador();
       break;
       }
     default:
@@ -197,6 +197,8 @@ variables.add(new Variable(id.image, tipoDato.image));
       jj_consume_token(-1);
       throw new ParseException();
     }
+{if ("" != null) return valor;}
+    throw new Error("Missing return statement in function");
 }
 
   static final public Token identificador() throws ParseException {Token id;
@@ -377,15 +379,17 @@ variables.add(new Variable(id.image, tipoDato.image));
 }
 
   static final public void gramaticaLlamarFuncion(Token id) throws ParseException, SemanticException {int numArgumentos = 0;
-  ArrayList<Variable> argumentos = new ArrayList<Variable>();
+  Token valor;
+  ArrayList<String> argumentos = new ArrayList<String>();
     jj_consume_token(AP);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ID:
     case VALOR_ENTERO:
     case VALOR_DECIMAL:
     case VALOR_CADENA:{
-      valor();
+      valor = valor();
 numArgumentos++;
+          argumentos.add(valor.image);
       label_6:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -398,8 +402,9 @@ numArgumentos++;
           break label_6;
         }
         jj_consume_token(COMA);
-        valor();
+        valor = valor();
 numArgumentos++;
+          argumentos.add(valor.image);
       }
       break;
       }
@@ -412,6 +417,7 @@ Funcion f = new Funcion();
                 f.setId(id.image);
                 f.setNumArgumentos(numArgumentos);
                 adminFunciones.validaFuncion(f);
+                adminFunciones.validaArgumentos(f,argumentos);
 }
 
   static final public void asignacion() throws ParseException {
