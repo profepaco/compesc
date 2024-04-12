@@ -6,15 +6,18 @@ public class Funcion {
 	private String id;
 	private String tipoDatoRetorno;
 	private int numArgumentos;
-	private ArrayList<Variable> variables;
+	//private ArrayList<Variable> variables;
 	private ArrayList<Variable> argumentos;
+	private AdministraVariables adminVariables;
 	
 	public Funcion() {
-		variables = new ArrayList<Variable>();
+		//variables = new ArrayList<Variable>();
+		adminVariables = new AdministraVariables();
 	}
 	
 	public void agregarVariable(Variable variable) {
-		this.variables.add(variable);
+		//variables.add(variable);
+		adminVariables.agregaVariable(variable);
 	}
 	
 	public String getId() {
@@ -47,6 +50,9 @@ public class Funcion {
 
 	public void setArgumentos(ArrayList<Variable> argumentos) {
 		this.argumentos = argumentos;
+		//manda los argumentos a la clase administra Variable
+		//para que san las primeras variables
+		adminVariables.setListaVariables(argumentos);
 	}
 
 	@Override

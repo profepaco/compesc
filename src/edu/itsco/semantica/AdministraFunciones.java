@@ -49,13 +49,17 @@ public class AdministraFunciones {
 	}
 	
 	public void validaArgumentos(Funcion f
-			,ArrayList<String> argumentos) {
+			,ArrayList<String> argumentos) throws SemanticException{
 		int index = funciones.indexOf(f);
 		Funcion funcion = funciones.get(index);
 		for(int i=0;i<funcion.getArgumentos().size();i++) {
 			Variable v = funcion.getArgumentos().get(i);
-			if(v.getTipoDato().equals("entero")) {
-				int n = Integer.valueOf(argumentos.get(i));
+			if(!v.getTipoDato().equals(argumentos.get(i))) {
+				//System.out.println("No coinciden los tipos");
+				throw new SemanticException(
+						SemanticException.ARGUMENTOS_NO_CONCUERDA,
+						funcion.getId()
+						);
 			}
 		}
 	}

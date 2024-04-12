@@ -1,7 +1,7 @@
 inicio ejemplo
   
   funcion suma(var n1: entero, var n2: entero)
-  	regresa n2
+  	var n1: entero
   fin 
   
   funcion principal()
@@ -11,7 +11,7 @@ inicio ejemplo
      leer(n1)
      imprimir("Dame n2")
      leer(n2)
-     suma(3, 1)
+     suma(3, 5)
      si n1 > n2 entonces
      	imprimir("N1 es mayor")
      sino

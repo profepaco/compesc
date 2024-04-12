@@ -40,5 +40,12 @@ public class Variable {
 		this.inicializada = inicializada;
 	}
 	
-	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Variable) {
+			Variable v = (Variable) obj;
+			return this.id.equals(v.getId());
+		}
+		return false;
+	}
 }

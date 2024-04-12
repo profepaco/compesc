@@ -174,22 +174,27 @@ variables.add(new Variable(id.image, tipoDato.image));
     throw new Error("Missing return statement in function");
 }
 
-  static final public Token valor() throws ParseException {Token valor;
+  static final public String valor() throws ParseException {String valor;
+  Token id;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case VALOR_ENTERO:{
-      valor = jj_consume_token(VALOR_ENTERO);
+      jj_consume_token(VALOR_ENTERO);
+valor = "entero";
       break;
       }
     case VALOR_DECIMAL:{
-      valor = jj_consume_token(VALOR_DECIMAL);
+      jj_consume_token(VALOR_DECIMAL);
+valor = "decimal";
       break;
       }
     case VALOR_CADENA:{
-      valor = jj_consume_token(VALOR_CADENA);
+      jj_consume_token(VALOR_CADENA);
+valor = "cadena";
       break;
       }
     case ID:{
-      valor = identificador();
+      id = identificador();
+valor = id.image;
       break;
       }
     default:
@@ -379,7 +384,7 @@ variables.add(new Variable(id.image, tipoDato.image));
 }
 
   static final public void gramaticaLlamarFuncion(Token id) throws ParseException, SemanticException {int numArgumentos = 0;
-  Token valor;
+  String valor;
   ArrayList<String> argumentos = new ArrayList<String>();
     jj_consume_token(AP);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -389,7 +394,7 @@ variables.add(new Variable(id.image, tipoDato.image));
     case VALOR_CADENA:{
       valor = valor();
 numArgumentos++;
-          argumentos.add(valor.image);
+          argumentos.add(valor);
       label_6:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -404,7 +409,7 @@ numArgumentos++;
         jj_consume_token(COMA);
         valor = valor();
 numArgumentos++;
-          argumentos.add(valor.image);
+          argumentos.add(valor);
       }
       break;
       }

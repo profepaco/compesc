@@ -181,16 +181,17 @@ Token tipoDato():{
 	}
 }
 
-Token valor():{
-  Token valor;
+String valor():{
+  String valor;
+  Token id;
 }{
-	(	  valor = < VALOR_ENTERO >
-	| valor = < VALOR_DECIMAL >
-	| valor =  < VALOR_CADENA >
-	| valor = identificador()
+	(	  < VALOR_ENTERO > { valor = "entero";}
+	| < VALOR_DECIMAL > { valor = "decimal"; }
+	| < VALOR_CADENA > { valor = "cadena"; }
+	| id = identificador() { valor = id.image; } 
 	)
 	{
-	  return valor;
+		return valor;
 	}
 }
 
@@ -253,17 +254,17 @@ void decideFuncionOAsignacion() throws SemanticException: {
 
 void gramaticaLlamarFuncion(Token id)throws SemanticException: {
   int numArgumentos = 0;
-  Token valor;
+  String valor;
   ArrayList<String> argumentos = new ArrayList<String>();
 } {
      < AP > [
      	valor = valor() {
      	  numArgumentos++;
-     	  argumentos.add(valor.image);
+     	  argumentos.add(valor);
      	}
      	( < COMA > valor = valor() {
      	  numArgumentos++;
-          argumentos.add(valor.image);
+          argumentos.add(valor);
       } )*
      ] <CP >
      {

@@ -10,6 +10,7 @@ public class SemanticException extends Exception {
 	public static final int ARGUMENTOS_NO_CONCUERDA = 40;
 	public static final int PRINCIPAL_NO_DEFINIDA = 50;
 	
+	
 	public SemanticException(int causa, String id) {
 		super(getMensaje(causa, id));
 	}
