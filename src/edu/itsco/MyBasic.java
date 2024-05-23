@@ -103,12 +103,12 @@ Funcion funcion = new Funcion();
         jj_la1[3] = jj_gen;
         break label_2;
       }
-      sentencias();
+      sentencias(funcion);
     }
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case REGRESA:{
       jj_consume_token(REGRESA);
-      valor();
+      valor(funcion);
       break;
       }
     default:
@@ -127,6 +127,7 @@ Funcion funcion = new Funcion();
     jj_consume_token(DP);
     tipoDato = tipoDato();
 Variable v = new Variable(id.image, tipoDato.image);
+          v.setInicializada(true);
           variables.add(v);
     label_3:
     while (true) {
@@ -174,7 +175,7 @@ variables.add(new Variable(id.image, tipoDato.image));
     throw new Error("Missing return statement in function");
 }
 
-  static final public String valor() throws ParseException {String valor;
+  static final public String valor(Funcion funcion) throws ParseException, SemanticException {String valor;
   Token id;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case VALOR_ENTERO:{
@@ -195,6 +196,9 @@ valor = "cadena";
     case ID:{
       id = identificador();
 valor = id.image;
+          Variable v = new Variable(id.image);
+          funcion.existeVariable(v);
+          funcion.variableInicializada(v);
       break;
       }
     default:
@@ -236,42 +240,42 @@ valor = id.image;
     throw new Error("Missing return statement in function");
 }
 
-  static final public void sentencias() throws ParseException, SemanticException {
+  static final public void sentencias(Funcion funcion) throws ParseException, SemanticException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case VAR:{
-      declararVariable();
+      declararVariable(funcion);
       break;
       }
     case IMPRIMIR:{
-      gramaticaImprimir();
+      gramaticaImprimir(funcion);
       break;
       }
     case LEER:{
-      gramaticaLeer();
+      gramaticaLeer(funcion);
       break;
       }
     case SI:{
-      gramaticaIf();
+      gramaticaIf(funcion);
       break;
       }
     case DESDE:{
-      gramaticaFor();
+      gramaticaFor(funcion);
       break;
       }
     case MIENTRAS:{
-      gramaticaWhile();
+      gramaticaWhile(funcion);
       break;
       }
     case HACER:{
-      gramaticaHacer();
+      gramaticaHacer(funcion);
       break;
       }
     case SELECCIONA:{
-      gramaticaSwitch();
+      gramaticaSwitch(funcion);
       break;
       }
     case ID:{
-      decideFuncionOAsignacion();
+      decideFuncionOAsignacion(funcion);
       break;
       }
     default:
@@ -281,11 +285,14 @@ valor = id.image;
     }
 }
 
-  static final public void declararVariable() throws ParseException {
+  static final public void declararVariable(Funcion funcion) throws ParseException, SemanticException {Token id;
+  Token tipo;
     jj_consume_token(VAR);
-    identificador();
+    id = identificador();
     jj_consume_token(DP);
-    tipoDato();
+    tipo = tipoDato();
+Variable v = new Variable(id.image, tipo.image);
+          funcion.agregarVariable(v);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case IGUAL:{
       jj_consume_token(IGUAL);
@@ -294,11 +301,11 @@ valor = id.image;
       case VALOR_ENTERO:
       case VALOR_DECIMAL:
       case VALOR_CADENA:{
-        valor();
+        valor(funcion);
         break;
         }
       case AC:{
-        inicializaArreglo();
+        inicializaArreglo(funcion);
         break;
         }
       default:
@@ -306,6 +313,7 @@ valor = id.image;
         jj_consume_token(-1);
         throw new ParseException();
       }
+v.setInicializada(true);
       break;
       }
     default:
@@ -314,9 +322,9 @@ valor = id.image;
     }
 }
 
-  static final public void inicializaArreglo() throws ParseException {
+  static final public void inicializaArreglo(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(AC);
-    valor();
+    valor(funcion);
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -329,16 +337,16 @@ valor = id.image;
         break label_4;
       }
       jj_consume_token(COMA);
-      valor();
+      valor(funcion);
     }
     jj_consume_token(CC);
 }
 
 //Gramatica imprimir
-  static final public void gramaticaImprimir() throws ParseException {
+  static final public void gramaticaImprimir(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(IMPRIMIR);
     jj_consume_token(AP);
-    valor();
+    valor(funcion);
     label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -351,29 +359,36 @@ valor = id.image;
         break label_5;
       }
       jj_consume_token(COMA);
-      valor();
+      valor(funcion);
     }
     jj_consume_token(CP);
 }
 
 //Gramatica Leer
-  static final public void gramaticaLeer() throws ParseException {
+  static final public void gramaticaLeer(Funcion funcion) throws ParseException, SemanticException {Token id;
     jj_consume_token(LEER);
     jj_consume_token(AP);
-    identificador();
+    id = identificador();
     jj_consume_token(CP);
+Variable v = new Variable(id.image);
+          funcion.existeVariable(v);
+          funcion.inicializaVariable(v);
 }
 
-  static final public void decideFuncionOAsignacion() throws ParseException, SemanticException {Token id;
+  static final public void decideFuncionOAsignacion(Funcion funcion) throws ParseException, SemanticException {Token id;
     //id = < ID >
             id = identificador();
+Variable v = new Variable(id.image);
+          /*funcion.existeVariable(v);
+	  funcion.inicializaVariable(v);*/
+
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case AP:{
-      gramaticaLlamarFuncion(id);
+      gramaticaLlamarFuncion(id, funcion);
       break;
       }
     case IGUAL:{
-      asignacion();
+      asignacion(funcion);
       break;
       }
     default:
@@ -383,7 +398,7 @@ valor = id.image;
     }
 }
 
-  static final public void gramaticaLlamarFuncion(Token id) throws ParseException, SemanticException {int numArgumentos = 0;
+  static final public void gramaticaLlamarFuncion(Token id, Funcion funcion) throws ParseException, SemanticException {int numArgumentos = 0;
   String valor;
   ArrayList<String> argumentos = new ArrayList<String>();
     jj_consume_token(AP);
@@ -392,7 +407,7 @@ valor = id.image;
     case VALOR_ENTERO:
     case VALOR_DECIMAL:
     case VALOR_CADENA:{
-      valor = valor();
+      valor = valor(funcion);
 numArgumentos++;
           argumentos.add(valor);
       label_6:
@@ -407,7 +422,7 @@ numArgumentos++;
           break label_6;
         }
         jj_consume_token(COMA);
-        valor = valor();
+        valor = valor(funcion);
 numArgumentos++;
           argumentos.add(valor);
       }
@@ -425,22 +440,22 @@ Funcion f = new Funcion();
                 adminFunciones.validaArgumentos(f,argumentos);
 }
 
-  static final public void asignacion() throws ParseException {
+  static final public void asignacion(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(IGUAL);
-    operacion();
+    operacion(funcion);
 }
 
-  static final public void operacion() throws ParseException {
+  static final public void operacion(Funcion funcion) throws ParseException, SemanticException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ID:
     case VALOR_ENTERO:
     case VALOR_DECIMAL:
     case VALOR_CADENA:{
-      valor();
+      valor(funcion);
       break;
       }
     case AP:{
-      opParentesis();
+      opParentesis(funcion);
       break;
       }
     default:
@@ -468,11 +483,11 @@ Funcion f = new Funcion();
       case VALOR_ENTERO:
       case VALOR_DECIMAL:
       case VALOR_CADENA:{
-        valor();
+        valor(funcion);
         break;
         }
       case AP:{
-        opParentesis();
+        opParentesis(funcion);
         break;
         }
       default:
@@ -508,20 +523,20 @@ Funcion f = new Funcion();
     }
 }
 
-  static final public void opParentesis() throws ParseException {
+  static final public void opParentesis(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(AP);
-    operacion();
+    operacion(funcion);
     jj_consume_token(CP);
 }
 
 //Gramatica if
-  static final public void gramaticaIf() throws ParseException, SemanticException {
+  static final public void gramaticaIf(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(SI);
-    condicion();
+    condicion(funcion);
     jj_consume_token(ENTONCES);
     label_8:
     while (true) {
-      sentencias();
+      sentencias(funcion);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case VAR:
       case IMPRIMIR:
@@ -545,7 +560,7 @@ Funcion f = new Funcion();
       jj_consume_token(SINO);
       label_9:
       while (true) {
-        sentencias();
+        sentencias(funcion);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case VAR:
         case IMPRIMIR:
@@ -574,7 +589,7 @@ Funcion f = new Funcion();
     jj_consume_token(SI);
 }
 
-  static final public void condicion() throws ParseException {
+  static final public void condicion(Funcion funcion) throws ParseException, SemanticException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case NOT:{
       jj_consume_token(NOT);
@@ -584,7 +599,7 @@ Funcion f = new Funcion();
       jj_la1[25] = jj_gen;
       ;
     }
-    condicionSimple();
+    condicionSimple(funcion);
     label_10:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -607,14 +622,14 @@ Funcion f = new Funcion();
         jj_la1[27] = jj_gen;
         ;
       }
-      condicionSimple();
+      condicionSimple(funcion);
     }
 }
 
-  static final public void condicionSimple() throws ParseException {
-    valor();
+  static final public void condicionSimple(Funcion funcion) throws ParseException, SemanticException {
+    valor(funcion);
     opRelacional();
-    valor();
+    valor(funcion);
 }
 
   static final public void opLogico() throws ParseException {
@@ -688,13 +703,15 @@ Funcion f = new Funcion();
     }
 }
 
-  static final public void gramaticaFor() throws ParseException, SemanticException {
+  static final public void gramaticaFor(Funcion funcion) throws ParseException, SemanticException {Token id;
     jj_consume_token(DESDE);
-    jj_consume_token(ID);
+    id = identificador();
+funcion.existeVariable(new Variable(id.image));
     jj_consume_token(IGUAL);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ID:{
-      identificador();
+      id = identificador();
+funcion.existeVariable(new Variable(id.image));
       break;
       }
     case VALOR_ENTERO:{
@@ -709,7 +726,8 @@ Funcion f = new Funcion();
     jj_consume_token(HASTA);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ID:{
-      identificador();
+      id = identificador();
+funcion.existeVariable(new Variable(id.image));
       break;
       }
     case VALOR_ENTERO:{
@@ -723,7 +741,7 @@ Funcion f = new Funcion();
     }
     label_11:
     while (true) {
-      sentencias();
+      sentencias(funcion);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case VAR:
       case IMPRIMIR:
@@ -745,13 +763,13 @@ Funcion f = new Funcion();
     jj_consume_token(SIGUIENTE);
 }
 
-  static final public void gramaticaWhile() throws ParseException, SemanticException {
+  static final public void gramaticaWhile(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(MIENTRAS);
-    condicion();
+    condicion(funcion);
     jj_consume_token(HACER);
     label_12:
     while (true) {
-      sentencias();
+      sentencias(funcion);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case VAR:
       case IMPRIMIR:
@@ -774,11 +792,11 @@ Funcion f = new Funcion();
     jj_consume_token(MIENTRAS);
 }
 
-  static final public void gramaticaHacer() throws ParseException, SemanticException {
+  static final public void gramaticaHacer(Funcion funcion) throws ParseException, SemanticException {
     jj_consume_token(HACER);
     label_13:
     while (true) {
-      sentencias();
+      sentencias(funcion);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case VAR:
       case IMPRIMIR:
@@ -798,12 +816,13 @@ Funcion f = new Funcion();
       }
     }
     jj_consume_token(HASTA);
-    condicion();
+    condicion(funcion);
 }
 
-  static final public void gramaticaSwitch() throws ParseException, SemanticException {
+  static final public void gramaticaSwitch(Funcion funcion) throws ParseException, SemanticException {Token id;
     jj_consume_token(SELECCIONA);
-    identificador();
+    id = identificador();
+funcion.existeVariable(new Variable(id.image));
     label_14:
     while (true) {
       jj_consume_token(CASO);
@@ -811,7 +830,7 @@ Funcion f = new Funcion();
       jj_consume_token(DP);
       label_15:
       while (true) {
-        sentencias();
+        sentencias(funcion);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case VAR:
         case IMPRIMIR:
@@ -847,7 +866,7 @@ Funcion f = new Funcion();
       jj_consume_token(DP);
       label_16:
       while (true) {
-        sentencias();
+        sentencias(funcion);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case VAR:
         case IMPRIMIR:

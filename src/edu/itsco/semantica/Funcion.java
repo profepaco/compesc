@@ -6,16 +6,17 @@ public class Funcion {
 	private String id;
 	private String tipoDatoRetorno;
 	private int numArgumentos;
-	//private ArrayList<Variable> variables;
+	private ArrayList<Variable> variables;
 	private ArrayList<Variable> argumentos;
 	private AdministraVariables adminVariables;
 	
 	public Funcion() {
-		//variables = new ArrayList<Variable>();
+		variables = new ArrayList<Variable>();
 		adminVariables = new AdministraVariables();
 	}
 	
-	public void agregarVariable(Variable variable) {
+	public void agregarVariable(Variable variable)
+			throws SemanticException{
 		//variables.add(variable);
 		adminVariables.agregaVariable(variable);
 	}
@@ -52,9 +53,25 @@ public class Funcion {
 		this.argumentos = argumentos;
 		//manda los argumentos a la clase administra Variable
 		//para que san las primeras variables
-		adminVariables.setListaVariables(argumentos);
+		for(Variable v: argumentos) {
+			v.setInicializada(true);
+			variables.add(v);
+		}
+		adminVariables.setListaVariables(variables);
 	}
 
+	public void existeVariable(Variable v) throws SemanticException {
+		adminVariables.existeVariable(v);
+	}
+	
+	public void inicializaVariable(Variable v) {
+		adminVariables.inicializaVariable(v);
+	}
+	
+	public void variableInicializada(Variable v) {
+		adminVariables.variableInicializada(v);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		

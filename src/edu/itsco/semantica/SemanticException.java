@@ -10,9 +10,16 @@ public class SemanticException extends Exception {
 	public static final int ARGUMENTOS_NO_CONCUERDA = 40;
 	public static final int PRINCIPAL_NO_DEFINIDA = 50;
 	
+	public static final int VARIABLE_DUPLICADA = 60;
+	public static final int VARIABLE_NO_DECLARADA = 70;
+	
 	
 	public SemanticException(int causa, String id) {
 		super(getMensaje(causa, id));
+	}
+	
+	public SemanticException(int causa, String funcion, String id) {
+		super("La variable "+id+" ya esta definida en "+funcion);
 	}
 	
 	private static String getMensaje(int causa, String id) {
@@ -29,6 +36,12 @@ public class SemanticException extends Exception {
 			break;
 		case ARGUMENTOS_NO_CONCUERDA:
 			msg = "Los argumentos de la funcion "+id+" no coinciden";
+			break;
+		case VARIABLE_DUPLICADA:
+			msg = "La variable "+id+" ya está definida";
+			break;
+		case VARIABLE_NO_DECLARADA:
+			msg = "La variable "+id+" no está declarada";
 			break;
 		default: 
 			msg = "Causa no conocida del error";

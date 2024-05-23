@@ -142,9 +142,9 @@ void gramaticaFuncion() throws SemanticException:{
 		funcion.setArgumentos(argumentos);
 	 	adminFunciones.agregaFuncion(funcion);
 	}
-		(		  sentencias()
+		(		  sentencias(funcion)
 		)*
-		[ < REGRESA > valor()]
+		[ < REGRESA > valor(funcion)]
 	< FIN > 
 }
 
@@ -159,6 +159,7 @@ ArrayList<Variable> argumentos(): {
 	< VAR > id = < ID > <DP > tipoDato = tipoDato()
 	{
 	  Variable v = new Variable(id.image, tipoDato.image);
+	  v.setInicializada(true);
 	  variables.add(v);
 	} 
 	(	  < COMA > < VAR > id = < ID > <DP > tipoDato = tipoDato()
@@ -181,14 +182,19 @@ Token tipoDato():{
 	}
 }
 
-String valor():{
+String valor(Funcion funcion)throws SemanticException:{
   String valor;
   Token id;
 }{
 	(	  < VALOR_ENTERO > { valor = "entero";}
 	| < VALOR_DECIMAL > { valor = "decimal"; }
 	| < VALOR_CADENA > { valor = "cadena"; }
-	| id = identificador() { valor = id.image; } 
+	| id = identificador() {
+	  valor = id.image;
+	  Variable v = new Variable(id.image);
+	  funcion.existeVariable(v);
+	  funcion.variableInicializada(v);
+	 } 
 	)
 	{
 		return valor;
@@ -205,64 +211,85 @@ Token identificador(): {
 	}
 }
 
-void sentencias() throws SemanticException:{
+void sentencias(Funcion funcion) throws SemanticException:{
 }{
-	declararVariable()
-| 	gramaticaImprimir()
-|   gramaticaLeer()
+	declararVariable(funcion)
+| 	gramaticaImprimir(funcion)
+|   gramaticaLeer(funcion)
 //|   asignacion()
-| 	gramaticaIf()
-|  	gramaticaFor()
-| 	gramaticaWhile()
-|   gramaticaHacer()
-|   gramaticaSwitch()
-|   decideFuncionOAsignacion()
+| 	gramaticaIf(funcion)
+|  	gramaticaFor(funcion)
+| 	gramaticaWhile(funcion)
+|   gramaticaHacer(funcion)
+|   gramaticaSwitch(funcion)
+|   decideFuncionOAsignacion(funcion)
 //|  	gramaticaLlamarFuncion()
 }
 
-void declararVariable(): {
+void declararVariable(Funcion funcion) throws SemanticException: {
+  Token id;
+  Token tipo;
 } {
-	< VAR > identificador() < DP > tipoDato()
-	[< IGUAL > ( valor() | inicializaArreglo() ) ]	
+	< VAR > id = identificador() < DP > tipo = tipoDato()
+	{
+	  Variable v = new Variable(id.image, tipo.image);
+	  funcion.agregarVariable(v);
+	}
+	[< IGUAL > ( valor(funcion) | inicializaArreglo(funcion) )
+	   { v.setInicializada(true);}
+	]	
 }
 
-void inicializaArreglo():{
+void inicializaArreglo(Funcion funcion)throws SemanticException:{
 }{
-	< AC > valor() ( < COMA > valor() )* < CC >
+	< AC > valor(funcion) ( < COMA > valor(funcion) )* < CC >
 }
 
 //Gramatica imprimir
-void gramaticaImprimir(): { }
+void gramaticaImprimir(Funcion funcion) throws SemanticException: { }
 {
-	< IMPRIMIR > < AP > valor() (< COMA > valor() )* < CP >
+	< IMPRIMIR > < AP > valor(funcion) (< COMA > valor(funcion) )* < CP >
 }
 
 //Gramatica Leer
-void gramaticaLeer(): { }
+void gramaticaLeer(Funcion funcion)throws SemanticException: {
+	Token id;
+}
 {
-	< LEER > < AP > identificador() < CP > 
+	< LEER > < AP > id = identificador() < CP >
+	{
+	  Variable v = new Variable(id.image);
+	  funcion.existeVariable(v);
+	  funcion.inicializaVariable(v);
+	}
 }
 
-void decideFuncionOAsignacion() throws SemanticException: {
+void decideFuncionOAsignacion(Funcion funcion) throws SemanticException: {
   Token id;
 } {
     //id = < ID >
-	id = identificador() (	  gramaticaLlamarFuncion(id)
-	  | asignacion()
+	id = identificador()
+	{
+	  Variable v = new Variable(id.image);
+	  /*funcion.existeVariable(v);
+	  funcion.inicializaVariable(v);*/
+	}
+	 (	  gramaticaLlamarFuncion(id, funcion)
+	  | asignacion(funcion)
     )
 }
 
-void gramaticaLlamarFuncion(Token id)throws SemanticException: {
+void gramaticaLlamarFuncion(Token id, Funcion funcion)throws SemanticException: {
   int numArgumentos = 0;
   String valor;
   ArrayList<String> argumentos = new ArrayList<String>();
 } {
      < AP > [
-     	valor = valor() {
+     	valor = valor(funcion) {
      	  numArgumentos++;
      	  argumentos.add(valor);
      	}
-     	( < COMA > valor = valor() {
+     	( < COMA > valor = valor(funcion) {
      	  numArgumentos++;
           argumentos.add(valor);
       } )*
@@ -276,16 +303,16 @@ void gramaticaLlamarFuncion(Token id)throws SemanticException: {
      }
 }
 
-void asignacion(): { }
+void asignacion(Funcion funcion) throws SemanticException: { }
 {
-	< IGUAL > operacion() 
+	< IGUAL > operacion(funcion) 
 }
 
-void operacion(): {
+void operacion(Funcion funcion)throws SemanticException: {
 }
 {
-	( valor() | opParentesis () )
-	 ( opAritmetico() ( valor() | opParentesis() ) ) *
+	( valor(funcion) | opParentesis (funcion) )
+	 ( opAritmetico() ( valor(funcion) | opParentesis(funcion) ) ) *
 }
 
 void opAritmetico(): {
@@ -293,30 +320,30 @@ void opAritmetico(): {
 	< SUMA > | < RESTA > | < DIV > | < MULTI > 
 }
 
-void opParentesis(): {
+void opParentesis(Funcion funcion)throws SemanticException: {
 }
 {
-	< AP > operacion() < CP >
+	< AP > operacion(funcion) < CP >
 }
 
 //Gramatica if
-void gramaticaIf() throws SemanticException: {
+void gramaticaIf(Funcion funcion) throws SemanticException: {
 } {
-	< SI > condicion() < ENTONCES >
-		( sentencias() )+ 
-	[< SINO >  ( sentencias() )+]
+	< SI > condicion(funcion) < ENTONCES >
+		( sentencias(funcion) )+ 
+	[< SINO >  ( sentencias(funcion) )+]
 	< FIN > < SI >
 }
 
-void condicion(): {
+void condicion(Funcion funcion) throws SemanticException: {
 } {
-	[< NOT > ]condicionSimple()
-	( opLogico() [< NOT > ] condicionSimple()) * 
+	[< NOT > ]condicionSimple(funcion)
+	( opLogico() [< NOT > ] condicionSimple(funcion)) * 
 }
 
-void condicionSimple(): {
+void condicionSimple(Funcion funcion) throws SemanticException: {
 } {
-	valor() opRelacional() valor()
+	valor(funcion) opRelacional() valor(funcion)
 }
 
 void opLogico(): {
@@ -332,33 +359,43 @@ void opRelacional(): {
 
 }
 
-void gramaticaFor() throws SemanticException: {
+void gramaticaFor(Funcion funcion) throws SemanticException: {
+  Token id;
 } {
-	< DESDE > < ID > < IGUAL > ( identificador() | < VALOR_ENTERO > )
-	 < HASTA > ( identificador() | < VALOR_ENTERO > )
-		( sentencias() )+
+	< DESDE > id = identificador() {
+			funcion.existeVariable(new Variable(id.image));
+	   } < IGUAL > ( id = identificador() {
+			funcion.existeVariable(new Variable(id.image));
+	   } | < VALOR_ENTERO > )
+	 < HASTA > ( id = identificador() {
+			funcion.existeVariable(new Variable(id.image));
+	   } | < VALOR_ENTERO > )
+		( sentencias(funcion) )+
 	< SIGUIENTE >
 }
 
-void gramaticaWhile() throws SemanticException: {
+void gramaticaWhile(Funcion funcion) throws SemanticException: {
 } {
-	< MIENTRAS > condicion() < HACER >
-		( sentencias() )+
+	< MIENTRAS > condicion(funcion) < HACER >
+		( sentencias(funcion) )+
 	< FIN > < MIENTRAS >
 }
 
-void gramaticaHacer() throws SemanticException: {
+void gramaticaHacer(Funcion funcion) throws SemanticException: {
 } {
 	< HACER >
-		( sentencias() )+
-	< HASTA > condicion()
+		( sentencias(funcion) )+
+	< HASTA > condicion(funcion)
 }
 
-void gramaticaSwitch() throws SemanticException: {
+void gramaticaSwitch(Funcion funcion) throws SemanticException: {
+  Token id;
 } {
-	< SELECCIONA > identificador()
-	 ( < CASO > <VALOR_ENTERO > < DP > (sentencias())+ < ROMPE >)+
-	 [ < SINO > < DP > ( sentencias() )+ ]
+	< SELECCIONA > id = identificador() {
+		funcion.existeVariable(new Variable(id.image));
+	}
+	 ( < CASO > <VALOR_ENTERO > < DP > (sentencias(funcion))+ < ROMPE >)+
+	 [ < SINO > < DP > ( sentencias(funcion))+ ]
 	< FIN > <SELECCIONA >
 }
 

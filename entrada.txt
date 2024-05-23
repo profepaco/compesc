@@ -1,22 +1,32 @@
 inicio ejemplo
   
   funcion suma(var n1: entero, var n2: entero)
-  	var n1: entero
+  	var resultado: entero
+  	resultado = n1 + n2
   fin 
   
   funcion principal()
      var n1: entero
      var n2: entero
+     var x: entero
      imprimir("Dame n1")
      leer(n1)
      imprimir("Dame n2")
      leer(n2)
-     suma(3, 5)
+     suma(5, 3)
      si n1 > n2 entonces
      	imprimir("N1 es mayor")
      sino
      	imprimir("N2 es mayor")
      fin si
+     selecciona n1 
+     	caso 1: imprimir("Es uno")
+     	rompe
+     fin selecciona
+     desde x = n1 hasta n2
+        imprimir(x)
+     siguiente
+     
   fin
   
 fin
